@@ -4,6 +4,7 @@
 > * npm install
 > * react-native link react-native-vector-icons
 > * react-native link @ant-design/icons-react-native
+> * react-native link react-native-gesture-handler
 > * react-native run-android
 
 ### 手动编译
