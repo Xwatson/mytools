@@ -2,8 +2,12 @@ import React, {Component} from 'react';
 import { View, Text, ScrollView, KeyboardAvoidingView  } from "react-native";
 import Header from "../../components/Header";
 import { Button, InputItem, List, Switch, Toast, Portal } from '@ant-design/react-native';
-import { Save } from '../../service/goodsReptileDetail'
+import { Save, Update, getDetailById } from '../../service/goodsReptile';
 
+const Status = {
+    'ENABLE': true,
+    'DISABLE': false
+}
 export default class GoodsReptileDetail extends React.Component {
     static navigationOptions = ({ navigation }) => ({
         title: '我是详情页'
@@ -23,6 +27,7 @@ export default class GoodsReptileDetail extends React.Component {
             expect_price: '', // 期望价格
             lowest_price_time: '', // 最低价出现时间
             is_phone: true, // 是否移动端
+            status: 'ENABLE', // 禁用/启用
             replace_str: '', // 替换字符
             vip_replace_str: '', // vip价替换字符
             code: 0, // 查询错误码 0成功 1错误
@@ -40,10 +45,29 @@ export default class GoodsReptileDetail extends React.Component {
         super(props);
         this.id = this.props.navigation.state.params.id;
     }
+    componentDidMount() {
+        if (this.id) {
+            this.getDetail(this.id);
+        }
+    }
+    getDetail = async(id) => {
+        const key = Toast.loading('Loading...', 0, () => {
+            console.log('Load complete !!!');
+        });
+        try {
+            const res = await getDetailById(id);
+            Portal.remove(key);
+            this.setState({
+                detail: res.data
+            });
+        } catch (error) {
+            Toast.fail('请求错误：' + error, 3);
+        }
+    }
     render() {
         const { detail = {}, verification } = this.state;
         return (
-            <KeyboardAvoidingView  behavior="padding" style={{ flex: 1 }}>
+            <KeyboardAvoidingView  behavior="padding">
                 <Header navigation={this.props.navigation} title={`详情页${this.id}`} leftButton />
                 <ScrollView >
                     <List renderHeader={'编辑'}>
@@ -172,16 +196,6 @@ export default class GoodsReptileDetail extends React.Component {
                         >
                             最低价出现时间
                         </InputItem>
-                        <List.Item extra={<Switch checked={detail.is_phone} trackColor={{true: "blue", false: null}}
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, is_phone: value },
-                                });
-                            }}
-                            />}
-                        >
-                            是否移动端
-                        </List.Item>
                         <InputItem clear value={detail.replace_str} labelNumber={6}
                             onChange={value => {
                                 this.setState({
@@ -202,6 +216,26 @@ export default class GoodsReptileDetail extends React.Component {
                         >
                             vip价替换字符
                         </InputItem>
+                        <List.Item extra={<Switch checked={detail.is_phone} trackColor={{true: "blue", false: null}}
+                            onChange={value => {
+                                this.setState({
+                                    detail: { ...detail, is_phone: value },
+                                });
+                            }}
+                            />}
+                        >
+                            是否移动端
+                        </List.Item>
+                        <List.Item extra={<Switch checked={Status[detail.status]} trackColor={{true: "blue", false: null}}
+                            onChange={value => {
+                                this.setState({
+                                    detail: { ...detail, status: value ? 'ENABLE' : 'DISABLE' },
+                                });
+                            }}
+                            />}
+                        >
+                            禁用/启用
+                        </List.Item>
                         <InputItem clear value={detail.message} disabled
                             onChange={value => {
                                 this.setState({
@@ -225,23 +259,31 @@ export default class GoodsReptileDetail extends React.Component {
     onSave = async() => {
         const { detail = {}, verification } = this.state;
         if (verification.name || verification.site_name || verification.image_selector || verification.url || verification.query_selector) {
+            alert('请检查必填字段！');
             Toast.fail('请检查必填字段！', 3);
             return;
         }
-        if (this.id) {
-            detail.id = this.id;
-        }
-        
         const key = Toast.loading('Loading...', 0, () => {
             console.log('Load complete !!!');
         });
-        const data = await Save(detail);
-        Portal.remove(key)
-        if (data) {
-            alert('保存成功！');
+        try {
+            let res = null;
+            let meg = '';
+            if (this.id) {
+                detail.id = this.id;
+                res = await Save(detail);
+                meg = '保存成功！';
+            } else {
+                res = await Update(detail);
+                meg = '修改成功！';
+            }
+            Portal.remove(key);
+            alert(meg);
+            Toast.success(meg);
             this.props.navigation.goBack();
-        } else {
-            alert('保存失败！');
+        } catch (error) {
+            alert('操作失败：' + error);
+            Toast.fail('操作失败：' + error);
         }
     }
 }

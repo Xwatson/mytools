@@ -3,16 +3,22 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Header from "../../components/Header";
 import Icon from "react-native-vector-icons/Feather";
 import { List, Tag } from '@ant-design/react-native';
+import { observer, inject } from "mobx-react";
+import goodsReptileStore from "../../store/GoodsReptileStore";
 
 const Item = List.Item;
 const Brief = Item.Brief;
 
+@observer
 export default class GoodsReptileList extends React.Component {
     static navigationOptions = ({ navigation }) => ({
         tabBarLabel: '爬虫'
     })
     constructor(props) {
         super(props);
+        this.goodsReptileStore = new goodsReptileStore();
+        this.page = 1;
+        this.size = 20;
         this.data = [
             {
                 id: 1,
@@ -37,29 +43,44 @@ export default class GoodsReptileList extends React.Component {
                 code: 1
             }
         ]
+        
+    }
+    componentDidMount() {
+        this.getList({ page: this.page, size: this.size })
+    }
+    getList = (q = {}) => {
+        this.goodsReptileStore.getList(q);
     }
     renderListItem = (data = []) => {
-        return data.map(item => 
-            <Item key={item.id} thumb={item.image_url || 'https://os.alipayobjects.com/rmsportal/mOoPurdIfmcuqtr.png'}
-                arrow="horizontal"
-                multipleLine
-                onClick={() => this.props.navigation.navigate('GoodsReptileDetail', {id: item.id})}
-            >
-                {item.name}
-                <View style={styles.listItemBrief}>
-                    <View style={[styles.listItemBriefBox, styles.listItemBriefSite]}><Text style={{ color: '#fff' }}>{item.site_name}</Text></View>
-                    {this.getPriceStatusIcon(item)}
-                    <View style={[styles.listItemBriefBox, styles.listItemBriefVipPrice]}><Text style={{color: '#e4c06a'}}>vip:{item.vip_price}</Text></View>
-                    <View style={[styles.listItemBriefBox, styles.listItemBriefExpectPrice]}><Text style={{color: '#090'}}>期望:{item.expect_price}</Text></View>
-                    <View style={[styles.listItemBriefBox, styles.listItemBriefLowestPrice]}><Text style={{color: 'red'}}>最低:{item.lowest_price}</Text></View>
-                    {
-                        item.code ? 
-                            <View style={[styles.listItemBriefBox, styles.listItemBriefCode]}><Text style={{color: '#fff'}}>Error</Text></View> :
-                            <Text/>
-                    }
-                </View>
-            </Item>
+        if (data.length) {
+            return data.map(item => 
+                <Item key={item.id} thumb={item.image_url || 'https://os.alipayobjects.com/rmsportal/mOoPurdIfmcuqtr.png'}
+                    arrow="horizontal"
+                    multipleLine
+                    onClick={() => this.props.navigation.navigate('GoodsReptileDetail', {id: item.id})}
+                >
+                    {item.name}
+                    <View style={styles.listItemBrief}>
+                        <View style={[styles.listItemBriefBox, styles.listItemBriefSite]}><Text style={{ color: '#fff' }}>{item.site_name}</Text></View>
+                        {this.getPriceStatusIcon(item)}
+                        {
+                            item.vip_price ?
+                                <View style={[styles.listItemBriefBox, styles.listItemBriefVipPrice]}><Text style={{color: '#e4c06a'}}>vip:{item.vip_price}</Text></View>
+                                : null
+                        }
+                        <View style={[styles.listItemBriefBox, styles.listItemBriefExpectPrice]}><Text style={{color: '#090'}}>期望:{item.expect_price}</Text></View>
+                        <View style={[styles.listItemBriefBox, styles.listItemBriefLowestPrice]}><Text style={{color: 'red'}}>最低:{item.lowest_price}</Text></View>
+                        {
+                            item.code ? 
+                                <View style={[styles.listItemBriefBox, styles.listItemBriefCode]}><Text style={{color: '#fff'}}>Error</Text></View> :
+                                null
+                        }
+                    </View>
+                </Item>
             )
+        } else {
+            return <Text style={{ textAlign: 'center' }}>暂无数据</Text>
+        }
     }
     getPriceStatusIcon = (item = {}) => {
         if (item.current_price > item.expect_price) {
@@ -77,13 +98,15 @@ export default class GoodsReptileList extends React.Component {
         }
     }
     render() {
+        const { list = {} } = this.goodsReptileStore
+        console.log('杀杀杀', this.goodsReptileStore.list.count, list.rows);
         return (
             <View style={{ flex: 1 }}>
                 <Header title={'商品爬虫'} rightButton={true} />
                 <ScrollView
                     style={{ flex: 1, backgroundColor: '#f5f5f9' }} >
                     <List renderHeader={'basic'}>
-                        {this.renderListItem(this.data)}
+                        {this.renderListItem((list || {}).rows)}
                     </List>
                 </ScrollView>
             </View>
