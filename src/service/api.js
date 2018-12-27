@@ -5,7 +5,7 @@ export const UserApi = {
 }
 
 export const GoodsReptile = {
-    getDetailById: (id) => baseURL + `/api/goodsReptileConfig/get/${id}`,
+    getDetailById: (id) => baseURL + `api/goodsReptileConfig/get/${id}`,
     getList: baseURL + `api/goodsReptileConfig/getList`,
     update: baseURL + `api/goodsReptileConfig/update`,
     save: baseURL + `api/goodsReptileConfig/create`,

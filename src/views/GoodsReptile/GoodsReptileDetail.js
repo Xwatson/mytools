@@ -9,9 +9,9 @@ const Status = {
     'DISABLE': false
 }
 export default class GoodsReptileDetail extends React.Component {
-    static navigationOptions = ({ navigation }) => ({
+    /* static navigationOptions = ({ navigation }) => ({
         title: '我是详情页'
-    })
+    }) */
     state = {
         detail: {
             name: '', // 名称
@@ -46,6 +46,7 @@ export default class GoodsReptileDetail extends React.Component {
         this.id = this.props.navigation.state.params.id;
     }
     componentDidMount() {
+        alert(this.id)
         if (this.id) {
             this.getDetail(this.id);
         }
@@ -56,19 +57,23 @@ export default class GoodsReptileDetail extends React.Component {
         });
         try {
             const res = await getDetailById(id);
+            console.log('顶顶顶', res)
             Portal.remove(key);
-            this.setState({
-                detail: res.data
-            });
+            if (res.data.code === 0) {
+                this.setState({
+                    detail: res.data.data
+                });
+            }
         } catch (error) {
+            console.log('请求错误：' + error)
             Toast.fail('请求错误：' + error, 3);
         }
     }
     render() {
         const { detail = {}, verification } = this.state;
         return (
-            <KeyboardAvoidingView  behavior="padding">
-                <Header navigation={this.props.navigation} title={`详情页${this.id}`} leftButton />
+            <KeyboardAvoidingView  behavior="padding" style={{ flex: 1 }}>
+                <Header navigation={this.props.navigation} title={`${detail.name}`} leftButton />
                 <ScrollView >
                     <List renderHeader={'编辑'}>
                         <InputItem clear value={detail.name} error={verification.name}
