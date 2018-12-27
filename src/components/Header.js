@@ -65,7 +65,7 @@ export default class Header extends PureComponent {
                                 { leftButton.icon || defaultLeftButton.icon}
                                 <Text style={{color: leftButton.textColor || defaultLeftButton.textColor, fontSize: 16}}>{leftButton.title || defaultLeftButton.title}</Text>
                             </TouchableOpacity> : 
-                            <Text/>
+                            null
                     }
                 </View>
                 <View style={styles.headerCenterContainer}>
@@ -82,7 +82,7 @@ export default class Header extends PureComponent {
                             { rightButton.icon || defaultRightButton.icon}
                             <Text style={{color: rightButton.textColor || defaultRightButton.textColor, fontSize: 16}}>{rightButton.title || defaultRightButton.title}</Text>
                         </TouchableOpacity> : 
-                        <Text/>
+                        null
                 }
                 </View>
             </View>
