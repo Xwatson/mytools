@@ -83,30 +83,25 @@ export default class GoodsReptileList extends React.Component {
         }
     }
     getPriceStatusIcon = (item = {}) => {
-        if (item.current_price > item.expect_price) {
-            return (
-                <View style={[styles.listItemBriefBox]}>
-                    <Text style={{ color: '#f54545' }}>{item.current_price}<Icon name={'arrow-up'} size={10} color={'#f54545'} /></Text>
-                </View>
-            )
-        } else {
-            return (
-                <View style={[styles.listItemBriefBox]}>
-                    <Text style={{ color: '#090' }}>{item.current_price}<Icon name={'arrow-down'} size={10} color={'#090'} /></Text>
-                </View>
-            )
-        }
+        return (
+            <View style={[styles.listItemBriefBox, styles.listItemBriefCurrPrice]}>
+                {
+                    item.current_price > item.expect_price ?
+                        <Text style={{ color: '#f54545' }}>{item.current_price}<Icon name={'arrow-up'} size={10} color={'#f54545'} /></Text>:
+                        <Text style={{ color: '#090' }}>{item.current_price}<Icon name={'arrow-down'} size={10} color={'#090'} /></Text>
+                }
+            </View>
+        )
     }
     render() {
         const { list = {} } = this.goodsReptileStore
-        console.log('杀杀杀', this.goodsReptileStore.list.count, list.rows);
         return (
             <View style={{ flex: 1 }}>
                 <Header title={'商品爬虫'} rightButton={true} />
                 <ScrollView
                     style={{ flex: 1, backgroundColor: '#f5f5f9' }} >
                     <List renderHeader={'basic'}>
-                        {this.renderListItem((list || {}).rows)}
+                        {this.renderListItem(list.rows)}
                     </List>
                 </ScrollView>
             </View>
@@ -131,6 +126,11 @@ const styles = StyleSheet.create({
         marginLeft: 0,
         color: '#fff',
         backgroundColor: '#f54545',
+    },
+    listItemBriefCurrPrice: {
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: '#feb115',
     },
     listItemBriefVipPrice: {
         color: '#e4c06a',
