@@ -50,7 +50,6 @@ export default class Home extends React.Component {
         storage.load({
             key: 'homeTextState'
         }).then(ret => {
-            console.log('杀杀杀', ret);
             this.setState({ loadText: ret.text })
         }) 
     }
