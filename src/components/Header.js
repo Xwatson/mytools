@@ -42,7 +42,7 @@ export default class Header extends PureComponent {
     render(){
         const { leftButton, rightButton } = this.props;
         const defaultLeftButton = {
-            icon: <Icon name={'chevron-left'} size={18} color={styles.headerCenterText.color} />,
+            icon: <Icon name={'chevron-left'} size={20} color={styles.headerCenterText.color} />,
             title: '返回',
             textColor: 'white'
         }
@@ -63,7 +63,7 @@ export default class Header extends PureComponent {
                                 }
                             }} >
                                 { leftButton.icon || defaultLeftButton.icon}
-                                <Text style={{color: leftButton.textColor || defaultLeftButton.textColor, fontSize: 16}}>{leftButton.title || defaultLeftButton.title}</Text>
+                                <Text style={{color: leftButton.textColor || defaultLeftButton.textColor, fontSize: 18}}>{leftButton.title || defaultLeftButton.title}</Text>
                             </TouchableOpacity> : 
                             null
                     }
@@ -75,8 +75,8 @@ export default class Header extends PureComponent {
                 {
                     rightButton ?
                         <TouchableOpacity activeOpacity={0.8} style={{flexDirection: 'row', alignItems:'center', flex: 1}} onPress={() => {
-                            if (this.props.navigation) {
-                                this.props.navigation.goBack();
+                            if (typeof this.props.rightButton.onClick === 'function') {
+                                this.props.rightButton.onClick();
                             }
                         }} >
                             { rightButton.icon || defaultRightButton.icon}
@@ -106,12 +106,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        height: 36,
+        height: 24,
         flex: 4,
     },
     headerCenterText: {
-        fontSize: 18,
+        flex: 1,
+        height: 24,
+        fontSize: 17,
         color: '#f8f8f8',
+        textAlign: 'center',
+        overflow: "hidden"
     },
     headerBtn: {
         flex: 1,
