@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { View, Text, ScrollView, KeyboardAvoidingView  } from "react-native";
 import Header from "../../components/Header";
-import { Button, InputItem, List, Switch, Toast, Portal } from '@ant-design/react-native';
+import { Button, InputItem, List, Switch, Toast, Portal, TextareaItem } from '@ant-design/react-native';
 import { Save, Update, getDetailById } from '../../service/goodsReptile';
 
 const Status = {
@@ -21,11 +21,11 @@ export default class GoodsReptileDetail extends React.Component {
             url: '', // 地址
             query_selector: '', // 价格document选择器
             vip_query_selector: '', // 会员价document选择器
-            current_price: '', // 现在价格
-            vip_price: '', // 会员价
-            lowest_price: '', // 最低价格
-            expect_price: '', // 期望价格
-            lowest_price_time: '', // 最低价出现时间
+            current_price: 0, // 现在价格
+            vip_price: 0, // 会员价
+            lowest_price: 0, // 最低价格
+            expect_price: 0, // 期望价格
+            lowest_price_time: null, // 最低价出现时间
             is_phone: true, // 是否移动端
             status: 'ENABLE', // 禁用/启用
             replace_str: '', // 替换字符
@@ -46,7 +46,6 @@ export default class GoodsReptileDetail extends React.Component {
         this.id = this.props.navigation.state.params.id;
     }
     componentDidMount() {
-        alert(this.id)
         if (this.id) {
             this.getDetail(this.id);
         }
@@ -57,17 +56,28 @@ export default class GoodsReptileDetail extends React.Component {
         });
         try {
             const res = await getDetailById(id);
-            console.log('顶顶顶', res)
             Portal.remove(key);
-            if (res.data.code === 0) {
+            if (res.code === 0) {
                 this.setState({
-                    detail: res.data.data
+                    detail: res.data
                 });
+                this.verificationField(res.data);
             }
         } catch (error) {
             console.log('请求错误：' + error)
             Toast.fail('请求错误：' + error, 3);
         }
+    }
+    verificationField(detail = {}) {
+        this.setState({
+            verification: {
+                name: !detail.name,
+                site_name: !detail.site_name,
+                image_selector: !detail.image_selector,
+                url: !detail.url,
+                query_selector: !detail.query_selector,
+            }
+        })
     }
     render() {
         const { detail = {}, verification } = this.state;
@@ -98,16 +108,9 @@ export default class GoodsReptileDetail extends React.Component {
                         >
                             站点名称
                         </InputItem>
-                        <InputItem clear value={detail.image_url} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, image_url: value },
-                                });
-                            }}
-                            placeholder="该值自动更新"
-                        >
-                            图片地址
-                        </InputItem>
+                        <List.Item>
+                            图片地址  <TextareaItem rows={4} placeholder="该值自动更新" value={detail.image_url} editable={false} autoHeight />
+                        </List.Item>
                         <InputItem clear value={detail.image_selector} labelNumber={5} error={verification.image_selector}
                             onChange={value => {
                                 this.setState({
@@ -151,56 +154,28 @@ export default class GoodsReptileDetail extends React.Component {
                         >
                             会员价选择器
                         </InputItem>
-                        <InputItem clear value={detail.current_price} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, current_price: value },
-                                });
-                            }}
-                            placeholder="该值自动更新"
-                        >
+                        <List.Item extra={detail.current_price + ''}>
                             现在价格
-                        </InputItem>
-                        <InputItem clear value={detail.vip_price} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, vip_price: value },
-                                });
-                            }}
-                            placeholder="该值自动更新"
-                        >
+                        </List.Item>
+                        <List.Item extra={detail.vip_price + ''}>
                             会员价
-                        </InputItem>
-                        <InputItem clear value={detail.lowest_price} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, lowest_price: value },
-                                });
-                            }}
-                            placeholder="该值自动更新"
-                        >
+                        </List.Item>
+                        <List.Item extra={detail.lowest_price + ''}>
                             最低价格
-                        </InputItem>
+                        </List.Item>
                         <InputItem type="number" clear value={detail.expect_price}
                             onChange={value => {
                                 this.setState({
-                                    detail: { ...detail, expect_price: value },
+                                    detail: { ...detail, expect_price: parseFloat(value) },
                                 });
                             }}
                             placeholder="请输入"
                         >
                             期望价格
                         </InputItem>
-                        <InputItem clear value={detail.lowest_price_time} labelNumber={7} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, lowest_price_time: value },
-                                });
-                            }}
-                            placeholder="该值自动更新"
-                        >
+                        <List.Item extra={detail.lowest_price_time}>
                             最低价出现时间
-                        </InputItem>
+                        </List.Item>
                         <InputItem clear value={detail.replace_str} labelNumber={6}
                             onChange={value => {
                                 this.setState({
@@ -241,16 +216,9 @@ export default class GoodsReptileDetail extends React.Component {
                         >
                             禁用/启用
                         </List.Item>
-                        <InputItem clear value={detail.message} disabled
-                            onChange={value => {
-                                this.setState({
-                                    detail: { ...detail, message: value },
-                                });
-                            }}
-                            placeholder="无"
-                        >
-                            错误信息
-                        </InputItem>
+                        <List.Item>
+                            错误信息  <TextareaItem rows={4} placeholder="该值自动更新" value={detail.message} editable={false} autoHeight />
+                        </List.Item>
                         <List.Item>
                             <Button type="warning" onPress={this.onSave}>
                                 保存
@@ -276,11 +244,11 @@ export default class GoodsReptileDetail extends React.Component {
             let meg = '';
             if (this.id) {
                 detail.id = this.id;
-                res = await Save(detail);
-                meg = '保存成功！';
-            } else {
                 res = await Update(detail);
                 meg = '修改成功！';
+            } else {
+                res = await Save(detail);
+                meg = '保存成功！';
             }
             Portal.remove(key);
             alert(meg);

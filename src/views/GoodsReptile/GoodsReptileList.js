@@ -57,7 +57,7 @@ export default class GoodsReptileList extends React.Component {
                 <Item key={item.id} thumb={item.image_url || 'https://os.alipayobjects.com/rmsportal/mOoPurdIfmcuqtr.png'}
                     arrow="horizontal"
                     multipleLine
-                    onClick={() => this.props.navigation.navigate('GoodsReptileDetail', {id: item.id})}
+                    onClick={this.navigateToDetail.bind(this, item.id)}
                 >
                     {item.name}
                     <View style={styles.listItemBrief}>
@@ -93,11 +93,14 @@ export default class GoodsReptileList extends React.Component {
             </View>
         )
     }
+    navigateToDetail = (id) => {
+        this.props.navigation.navigate('GoodsReptileDetail', {id: id})
+    }
     render() {
         const { list = {} } = this.goodsReptileStore
         return (
             <View style={{ flex: 1 }}>
-                <Header title={'商品爬虫'} rightButton={true} />
+                <Header title={'商品爬虫'} rightButton={{ onClick: this.navigateToDetail.bind(this, null) }} />
                 <ScrollView
                     style={{ flex: 1, backgroundColor: '#f5f5f9' }} >
                     <List renderHeader={'basic'}>
