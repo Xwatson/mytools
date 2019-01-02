@@ -11,10 +11,10 @@ export default class GoodsReptileStore {
         this.fetching = true;
         try {
             const res = await getList({ page, size });
-            if (res.data.code === 0) {
+            if (res.code === 0) {
                 runInAction(() => {
                     this.fetching = false;
-                    this.list = res.data.data;
+                    this.list = res.data;
                 });
             }
         } catch (error) {

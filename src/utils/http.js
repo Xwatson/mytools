@@ -62,7 +62,11 @@ export const request = (url, method = 'GET', data = {}, options = {}) => {
             ...options
         })
         .then(function(res) {
-            resolve(res);
+            if (res.data.code === 0) {
+                resolve(res.data);
+            } else {
+                reject(res.data.message);
+            }
         })
         .catch(function(err) {
             reject(err);
