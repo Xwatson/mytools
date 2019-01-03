@@ -34,7 +34,7 @@ export default MainTab = createBottomTabNavigator({
             },
         }),
         tabBarOptions: {
-            activeTintColor: 'tomato',
+            activeTintColor: '#2089dc',
             inactiveTintColor: 'gray',
         }
     }
