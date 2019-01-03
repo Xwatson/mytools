@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, Button, TextInput } from "react-native";
 import { observer, inject } from "mobx-react";
-import Header from '../components/Header';
+// import Header from '../components/Header';
+import { Header } from 'react-native-elements';
 
 @inject('homeStore') // 将store传递给组件props
 @observer // 转换响应式组件
@@ -22,7 +23,9 @@ export default class Home extends React.Component {
         const { text = '123', num =0 } = this.homeStore;
         return (
             <View>
-                <Header title={'首页'} />
+                <Header
+                    centerComponent={{ text: '商品价格', style: { color: '#fff', fontSize: 18 } }}
+                />
                 <Text>{text}</Text>
                 <Button title="add" onPress={() => this.homeStore.plus()} />
                 <Text>{num}</Text>

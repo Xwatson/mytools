@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import Header from "../../components/Header";
+import { View, Text, StyleSheet, Dimensions, FlatList, RefreshControl } from "react-native";
+// import Header from "../../components/Header";
 import Icon from "react-native-vector-icons/Feather";
-import { List, Tag } from '@ant-design/react-native';
+import { ListItem, Header } from 'react-native-elements';
 import { observer, inject } from "mobx-react";
 import goodsReptileStore from "../../store/GoodsReptileStore";
 
-const Item = List.Item;
-const Brief = Item.Brief;
-
+let {width, height} = Dimensions.get('window');
 @observer
 export default class GoodsReptileList extends React.Component {
     static navigationOptions = ({ navigation }) => ({
@@ -19,6 +17,7 @@ export default class GoodsReptileList extends React.Component {
         this.goodsReptileStore = new goodsReptileStore();
         this.page = 1;
         this.size = 20;
+        this.isLoreMore = false;
         this.data = [
             {
                 id: 1,
@@ -48,18 +47,17 @@ export default class GoodsReptileList extends React.Component {
     componentDidMount() {
         this.getList({ page: this.page, size: this.size })
     }
-    getList = (q = {}) => {
-        this.goodsReptileStore.getList(q);
+    getList = () => {
+        this.goodsReptileStore.getList({ page: this.page, size: this.size });
     }
-    renderListItem = (data = []) => {
-        if (data.length) {
-            return data.map(item => 
-                <Item key={item.id} thumb={item.image_url || 'https://os.alipayobjects.com/rmsportal/mOoPurdIfmcuqtr.png'}
-                    arrow="horizontal"
-                    multipleLine
-                    onClick={this.navigateToDetail.bind(this, item.id)}
-                >
-                    {item.name}
+    renderListItem = ({ item = {} }) => {
+       return (
+            <ListItem key={item.id}
+                chevron
+                bottomDivider
+                leftAvatar={{ source: { uri: item.image_url || 'https://os.alipayobjects.com/rmsportal/mOoPurdIfmcuqtr.png' } }}
+                title={item.name}
+                subtitle={
                     <View style={styles.listItemBrief}>
                         <View style={[styles.listItemBriefBox, styles.listItemBriefSite]}><Text style={{ color: '#fff' }}>{item.site_name}</Text></View>
                         {this.getPriceStatusIcon(item)}
@@ -76,11 +74,10 @@ export default class GoodsReptileList extends React.Component {
                                 null
                         }
                     </View>
-                </Item>
-            )
-        } else {
-            return <Text style={{ textAlign: 'center' }}>暂无数据</Text>
-        }
+                }
+                onPress={this.navigateToDetail.bind(this, item.id)}
+            />
+       )
     }
     getPriceStatusIcon = (item = {}) => {
         return (
@@ -96,23 +93,92 @@ export default class GoodsReptileList extends React.Component {
     navigateToDetail = (id) => {
         this.props.navigation.navigate('GoodsReptileDetail', {id: id})
     }
+    renderHeader = ()=> {
+        return null;
+    }
+
+    renderFooter = ()=> {
+        const { list = {}, fetching } = this.goodsReptileStore;
+        if (fetching) {
+            return (
+                <View style={{
+                    height: 44,
+                    // backgroundColor: 'rgb(200,200,200)',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text>{'正在加载....'}</Text>
+                </View>
+            )
+        } else if (!fetching && Math.ceil(list.count / this.size) === this.page) {
+            return (
+                <View style={{
+                    height: 44,
+                    // backgroundColor: '#f5f5f9',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text>{'暂无更多'}</Text>
+                </View>
+            )
+        } else {
+            return null
+        }
+
+    }
     render() {
-        const { list = {} } = this.goodsReptileStore
+        const { list = {} } = this.goodsReptileStore;
         return (
             <View style={{ flex: 1 }}>
-                <Header title={'商品爬虫'} rightButton={{ onClick: this.navigateToDetail.bind(this, null) }} />
-                <ScrollView
-                    style={{ flex: 1, backgroundColor: '#f5f5f9' }} >
-                    <List renderHeader={'basic'}>
-                        {this.renderListItem(list.rows)}
-                    </List>
-                </ScrollView>
+                <Header
+                    leftComponent={{ icon: 'refresh', color: '#fff', onPress: this.refreshList }}
+                    centerComponent={{ text: '商品价格', style: { color: '#fff', fontSize: 18 } }}
+                    rightComponent={{ icon: 'add', color: '#fff', onPress: this.navigateToDetail.bind(this, null) }}
+                />
+                <FlatList
+                    showsVerticalScrollIndicator={false}//是否显示垂直滚动条
+                    showsHorizontalScrollIndicator={false}//是否显示水平滚动条
+                    numColumns={1}//每行显示1个
+                    ref={(flatList)=>this._flatList = flatList}
+                    ListHeaderComponent={this.renderHeader}//头部
+                    ListFooterComponent={this.renderFooter}//尾巴
+                    // ItemSeparatorComponent={this.renderSeparator}//每行底部---一般写下划线
+                    enableEmptySections={true}//数据可以为空
+                    keyExtractor={(item, index)=>item.key = index}
+                    onEndReachedThreshold={0.1}//执行上啦的时候10%执行
+                    onEndReached={this.LoreMore}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.goodsReptileStore.fetching}
+                            onRefresh={this.refreshList}
+                            title="Loading..."/>
+                    }
+                    data={list.rows}
+                    renderItem={this.renderListItem}
+                />
             </View>
           );
+    }
+    LoreMore = ()=> {
+        const { list = {} } = this.goodsReptileStore;
+        if (Math.ceil((list.count || 0) / this.size) < this.page) {
+            this.page++;
+            this.getList()
+        }
+    }
+    refreshList = () => {
+        this.page = 1;
+        this.getList()
     }
 }
 
 const styles = StyleSheet.create({
+    basicList: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+    },
     listItemBrief: {
         flexDirection: 'row',
         alignItems: 'center'
