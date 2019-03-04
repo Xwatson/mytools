@@ -1,9 +1,8 @@
 # mytools
-一个基于react-native 0.57 + @ant-design/react-native + mobx + axios的工具应用
+一个基于react-native 0.57 + react-native-elements ui + mobx + axios的工具应用
 ## Quick Start
 > * npm install
 > * react-native link react-native-vector-icons
-> * react-native link @ant-design/icons-react-native
 > * react-native link react-native-gesture-handler
 > * react-native run-android
 
@@ -12,7 +11,7 @@
 
 ### ...
 > * rn 0.57x
-> * ant-design/react-native 3.x
+> * react-native-elements ui
 > * mobx 5.x
 > * axios
 > * storage
