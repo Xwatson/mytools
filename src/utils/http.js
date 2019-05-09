@@ -34,8 +34,8 @@ axios.interceptors.request.use((config) => {
  * @param {*} data 参数
  * @param {*} options 其他配置
  */
-export const httpGet = async(url, data = {}, options = {}) => {
-    return await request(url, 'GET', data, options);
+export const httpGet = async (url, data = {}, options = {}) => {
+  return await request(url, 'GET', data, options);
 }
 
 /**
@@ -44,32 +44,32 @@ export const httpGet = async(url, data = {}, options = {}) => {
  * @param {*} data 参数
  * @param {*} options 其他配置
  */
-export const httpPost = async(url, data = {}, options = {}) => {
-    return await request(url, 'POST', data, options);
+export const httpPost = async (url, data = {}, options = {}) => {
+  return await request(url, 'POST', data, options);
 }
 
 export const request = (url, method = 'GET', data = {}, options = {}) => {
-    return new Promise((resolve, reject) => {
-        axios.request({
-            url,
-            method,
-            data,
-            headers: { 'sign': 'xxx', 'Cache-Control': 'no-cache', token: 'xxx' },
-            responseType: 'json',
-            validateStatus: function (status) {
-                return status >= 200 && status < 300;;
-            },
-            ...options
-        })
-        .then(function(res) {
-            if (res.data.code === 0) {
-                resolve(res.data);
-            } else {
-                reject(res.data.message);
-            }
-        })
-        .catch(function(err) {
-            reject(err);
-        })
-    });
+  return new Promise((resolve, reject) => {
+    axios.request({
+      url,
+      method,
+      data,
+      headers: { 'sign': 'xxx', 'Cache-Control': 'no-cache', token: 'xxx' },
+      responseType: 'json',
+      validateStatus: function (status) {
+        return status >= 200 && status < 300;;
+      },
+      ...options
+    })
+      .then(function (res) {
+        if (res.data.code === 0) {
+          resolve(res.data);
+        } else {
+          reject(res.data.message);
+        }
+      })
+      .catch(function (err) {
+        reject(err);
+      })
+  });
 }

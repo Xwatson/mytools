@@ -11,7 +11,7 @@ import './src/utils/storage';
 const Navigator = createAppContainer(createStackNavigator(RouteConfig, StackNavigatorConfig));
 
 export default class App extends Component {
- 
+
   render() {
     return (
       <Provider {...store} >

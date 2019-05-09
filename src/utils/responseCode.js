@@ -1,4 +1,4 @@
 export default {
-    'SUCCESS': 0,
-    'FAIL': 1,
+  'SUCCESS': 0,
+  'FAIL': 1,
 }

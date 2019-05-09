@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import {
-    Image,
-    StyleSheet, 
+  Image,
+  StyleSheet,
 } from 'react-native'
 import { createBottomTabNavigator } from 'react-navigation'
 import Icon from "react-native-vector-icons/Feather";
@@ -9,35 +9,35 @@ import Home from '../views/Home'
 import GoodsReptileList from '../views/GoodsReptile/GoodsReptileList'
 
 export default MainTab = createBottomTabNavigator({
-        Home,
-        GoodsReptileList
-    },
-    {
-        defaultNavigationOptions: ({navigation}) => ({
-            tabBarIcon: ({focused, tintColor}) => {
-                const {routeName} = navigation.state;
-                let iconName;
-                switch (routeName) {
-                    case 'Home':
-                        iconName = `home`;
-                        break;
-                    case 'GoodsReptileList':
-                        iconName = `target`;
-                        break;
-                    default:
-                        iconName = `home`;
-                        break;
-                }
-                // 在此处可以返回任何组件！
-                // 我们通常使用react-native-vector-icons中的图标组件
-                return <Icon name={iconName} size={25} color={tintColor}/>;
-            },
-        }),
-        tabBarOptions: {
-            activeTintColor: '#2089dc',
-            inactiveTintColor: 'gray',
+  Home,
+  GoodsReptileList
+},
+  {
+    defaultNavigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, tintColor }) => {
+        const { routeName } = navigation.state;
+        let iconName;
+        switch (routeName) {
+          case 'Home':
+            iconName = `home`;
+            break;
+          case 'GoodsReptileList':
+            iconName = `target`;
+            break;
+          default:
+            iconName = `home`;
+            break;
         }
+        // 在此处可以返回任何组件！
+        // 我们通常使用react-native-vector-icons中的图标组件
+        return <Icon name={iconName} size={25} color={tintColor} />;
+      },
+    }),
+    tabBarOptions: {
+      activeTintColor: '#2089dc',
+      inactiveTintColor: 'gray',
     }
+  }
 )
 
 /* export default MainTab = TabNavigator({
