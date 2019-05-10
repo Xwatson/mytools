@@ -17,23 +17,69 @@ export const fetchHotGameList = async (q = {}) => {
         {
           id: 1,
           name: '官方变态服',
-          bgColor: '#fff',
-          color: 'greenyellow'
+          bgColor: '#62BFF2',
+          color: '#fff'
         },
         {
           id: 2,
-          name: '官方变态服',
-          bgColor: '#fff',
-          color: 'blue'
+          name: '送VIP16',
+          bgColor: '#FEAF24',
+          color: '#fff'
+        },
+        {
+          id: 3,
+          name: '送VIP16',
+          bgColor: '#FB8486',
+          color: '#fff'
+        },
+        {
+          id: 4,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 5,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 6,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 7,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 12,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 13,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
+        },
+        {
+          id: 14,
+          name: '送VIP16',
+          bgColor: 'blue',
+          color: '#fff'
         }
       ]
     };
     setTimeout(() => {
       const row = [1, 2, 3, 4, 5, 6, 7, 8].map(id => {
-        data.id = id;
-        data.category.id = id;
-        return data;
-      })
+        return { ...data, id: id + parseInt(Math.random() * 1000).toString(), title: data.title + id  };
+      });
       resolve({ code: 0, data: { count: 8, row } })
     }, 2000);
   });

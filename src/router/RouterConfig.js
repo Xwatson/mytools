@@ -1,5 +1,5 @@
 import BottomTab from './BottomTabNavigator'
-import GoodsReptileDetail from '../views/GoodsReptile/GoodsReptileDetail'
+import GoodsReptileDetail from '../views/goodsReptile/GoodsReptileDetail'
 
 /*
     --- 路由配置 ---

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Dimensions, FlatList, RefreshControl } from "react-native";
 // import Header from "../../components/Header";
 import Icon from "react-native-vector-icons/Feather";

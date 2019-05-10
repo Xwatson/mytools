@@ -6,7 +6,9 @@ import GameListItem from '../../components/GameListItem';
 @inject('homeStore')
 @observer
 export default class Home extends React.Component {
-
+  static navigationOptions = ({ navigation }) => ({
+    tabBarLabel: '首页'
+  })
   constructor(props) {
     super(props);
     this.pagination = {
@@ -34,7 +36,13 @@ export default class Home extends React.Component {
         <ScrollView>
           <View>
             <Text>人气推荐</Text>
-            {row.map(item => <GameListItem data={item} />)}
+            {row.map((item, index) => (
+              <View
+                style={{ ...styles.gameListItem, ...(index === row.length -1 ? { borderBottomWidth: 0 } : {}) }}
+                key={item.id}>
+                  <GameListItem data={item} />
+                </View>
+            ))}
           </View>
         </ScrollView>
       </View>
@@ -44,4 +52,10 @@ export default class Home extends React.Component {
 
 const styles = StyleSheet.create({
   home: {},
+  gameListItem: {
+    marginHorizontal: 10,
+    paddingVertical: 5,
+    borderBottomWidth: 0.5,
+    borderColor: '#ccc'
+  }
 })
