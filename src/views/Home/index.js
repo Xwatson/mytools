@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Text } from "react-native";
+import PropTypes from 'prop-types';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from "react-native";
 import { observer, inject } from "mobx-react";
 import GameListItem from '../../components/GameListItem';
 
@@ -8,7 +9,10 @@ import GameListItem from '../../components/GameListItem';
 export default class Home extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     tabBarLabel: '首页'
-  })
+  });
+  static propTypes = {
+    navigation: PropTypes.object
+  }
   constructor(props) {
     super(props);
     this.pagination = {
@@ -26,7 +30,12 @@ export default class Home extends React.Component {
   }
   onFetchData = (pagination) => {
     this.pagination = pagination;
-    this.getHotList(pagination)
+    this.getHotList(pagination);
+  }
+  onPressGameItem = (id) => {
+    console.log('啊啊啊')
+    const { navigation } = this.props;
+    navigation.navigate('GameDetail', { id });
   }
   render() {
     const { page, size } = this.pagination;
@@ -39,8 +48,11 @@ export default class Home extends React.Component {
             {row.map((item, index) => (
               <View
                 style={{ ...styles.gameListItem, ...(index === row.length -1 ? { borderBottomWidth: 0 } : {}) }}
-                key={item.id}>
+                key={item.id}
+              >
+                <TouchableOpacity activeOpacity={0.6} onPress={() => this.onPressGameItem(item.id)}>
                   <GameListItem data={item} />
+                </TouchableOpacity>
                 </View>
             ))}
           </View>

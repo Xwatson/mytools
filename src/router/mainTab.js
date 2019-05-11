@@ -10,7 +10,6 @@ import My from '../views/my';
 
 export default MainTab = createBottomTabNavigator({
   Home: {
-    path: '/home',
     screen: Home,
     navigationOptions: ({ navigation }) => ({ header: null, gesturesEnable: true })
   },
@@ -45,8 +44,6 @@ export default MainTab = createBottomTabNavigator({
         return <Icon name={iconName} size={20} color={tintColor} />;
       },
     }),
-    animationEnabled: true,
-    swipeEnabled: false,
     swipeEnabled: true,//是否可以滑动切换
     animationEnabled: true,//切换是否有动画
     initialRouteName: 'Home', //进入App的首页面
