@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, RefreshControl, ActivityIndicator, Dimensions } from "react-native";
 import { Tabs } from '@ant-design/react-native';
 import Swiper from 'react-native-swiper';
 import { observer, inject } from "mobx-react";
 import GameListItem from '../../components/GameListItem';
+import LoadingMore from '../../components/LoadingMore';
 
 @inject('homeStore')
 @observer
@@ -16,7 +17,16 @@ export default class Home extends React.Component {
     navigation: PropTypes.object
   }
   state = {
-
+    loadMore: {
+      Metamorphosis: false,
+      Discount: false,
+      H5: false,
+    },
+    refreshing: {
+      Metamorphosis: false,
+      Discount: false,
+      H5: false,
+    }
   }
   constructor(props) {
     super(props);
@@ -26,14 +36,12 @@ export default class Home extends React.Component {
     };
     this.tabKey = 'Metamorphosis';
     this.tabsKeys = ['Metamorphosis', 'Discount', 'H5'];
-    this.swiperIndex = {
-      Metamorphosis: 0,
-      Discount: 0,
-      H5: 0,
-    };
+    this.txtPulling = {};
+    this.txtPullok = {};
+    this.txtPullrelease = {};
     this.metamorphosisRef = null;
     this.autoPlaySwiperTimer = null;
-    this.swiperTouch = '';
+    this.swiperTouch = false;
   }
 
   getHotList = (pagination) => {
@@ -49,46 +57,28 @@ export default class Home extends React.Component {
     }, 1000);
   }
   onSwiperIndexChanged = (index, key) => {
-    if (this.swiperTouch === 'customer') {
-      console.log('onSwiperIndexChanged', index);
-      this.swiperIndex[key] = index;
-      this.autoPlaySwiper();
-    }
   }
   autoPlaySwiper = () => {
-    this.swiperTouch = ''
-    const counts = {
-      Metamorphosis: 3,
-      Discount: 3,
-      H5: 3,
-    };
     console.log('autoPlaySwiper');
     if (this.autoPlaySwiperTimer) clearInterval(this.autoPlaySwiperTimer);
     this.autoPlaySwiperTimer = setInterval(() => {
       const tabKey = this.tabKey;
-      const swiperIndex = this.swiperIndex;
-      let currentIndex = swiperIndex[tabKey];
-      if (currentIndex >= counts[tabKey]) {
-        currentIndex = 0;
-      } else {
-        currentIndex++;
-      }
-      swiperIndex[tabKey] = currentIndex;
-      console.log('定时器执行', tabKey, currentIndex);
+      console.log('定时器执行', tabKey);
       const refName = tabKey + 'Ref';
       if (this.refs[refName]) {
-        this.refs[refName].scrollBy(currentIndex - 1);
+        this.refs[refName].scrollBy(1);
       }
     }, 2500);
   }
   clearAutoPlaySwiperTimer = () => {
     console.log('clearAutoPlaySwiperTimeout');
-    this.swiperTouch = 'touch';
+    this.swiperTouch = true;
     clearInterval(this.autoPlaySwiperTimer);
   }
   onSwiperTouchEnd = (e, state) => {
-    if (this.swiperTouch === 'touch') {
-      this.swiperTouch = 'customer';
+    if (this.swiperTouch) {
+      this.swiperTouch = false;
+      this.autoPlaySwiper();
     }
   }
   onTabsChange = (tab, index) => {
@@ -103,17 +93,69 @@ export default class Home extends React.Component {
     const { navigation } = this.props;
     navigation.navigate('GameDetail', { id });
   }
+  onRefresh = (key) => {
+    const { refreshing } = this.state;
+    refreshing[key] = true;
+    this.setState({ refreshing });
+    setTimeout(() => {
+      refreshing[key] = false;
+      this.setState({ refreshing });
+    }, 2000);
+  }
+  onScroll = (event, key) => {
+    const { loadMore } = this.state;
+    if (loadMore[key]) {
+      return;
+    }
+    let y = event.nativeEvent.contentOffset.y;
+    let height = event.nativeEvent.layoutMeasurement.height;
+    let contentHeight = event.nativeEvent.contentSize.height;
+    if (y + height >= contentHeight - 20) {
+      loadMore[key] = true;
+      this.setState({ loadMore });
+      setTimeout(() => {
+        loadMore[key] = false;
+        this.setState({ loadMore });
+      }, 3000);
+    }
+    return;
+  }
+  // 渲染上拉加载更多
+  renderLoadMore = (key) => {
+    const { loadMore } = this.state;
+    return (
+      <LoadingMore
+        isLoading={loadMore[key]}
+        onLoading={() => {
+          alert('fdfdfd');
+        }}
+      />
+    );
+  }
   // 变态
   renderTabMetamorphosis = (row) => {
-    const { swiperIndex } = this.state;
+    const { refreshing } = this.state;
     return (
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing.Metamorphosis}
+            onRefresh={() => this.onRefresh('Metamorphosis')}
+            tintColor="#ff0000"
+            title="加载中..."
+            titleColor="#00ff00"
+            colors={['#ff0000', '#00ff00', '#0000ff']}
+            progressBackgroundColor="#ffffff"
+          />
+        }
+        onScroll={(e) => this.onScroll(e, 'Metamorphosis')}
+        scrollEventThrottle={50}
+      >
         <Swiper
           ref="MetamorphosisRef"
           style={styles.wrapper}
           onTouchStart={this.clearAutoPlaySwiperTimer}
           onTouchEnd={this.onSwiperTouchEnd}
-          onIndexChanged={index => this.onSwiperIndexChanged(index, 'Metamorphosis')}
         >
           <View style={styles.slide1}>
             <Text style={styles.text}>Hello Swiper111</Text>
@@ -125,8 +167,11 @@ export default class Home extends React.Component {
             <Text style={styles.text}>And simple333</Text>
           </View>
         </Swiper>
+        <View style={styles.graySpace } />
+        <View style={styles.hotCate}>
+          <Text style={styles.hotRecommend}>人气推荐</Text>
+        </View>
         <View>
-          <Text>人气推荐</Text>
           {row.map((item, index) => (
             <View
               style={{ ...styles.gameListItem, ...(index === row.length - 1 ? { borderBottomWidth: 0 } : {}) }}
@@ -137,15 +182,36 @@ export default class Home extends React.Component {
               </TouchableOpacity>
             </View>
           ))}
+          {this.renderLoadMore('Metamorphosis')}
         </View>
       </ScrollView>
     );
   }
   // 折扣
   renderTabDiscount = () => {
+    const { refreshing } = this.state;
     return (
-      <ScrollView>
-        <Swiper style={styles.wrapper} >
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing.Discount}
+            onRefresh={() => this.onRefresh('Discount')}
+            tintColor="#ff0000"
+            title="加载中..."
+            titleColor="#00ff00"
+            colors={['#ff0000', '#00ff00', '#0000ff']}
+            progressBackgroundColor="#ffffff"
+          />
+        }
+        onScroll={(e) => this.onScroll(e, 'Discount')}
+        scrollEventThrottle={50}
+      >
+        <Swiper
+          style={styles.wrapper}
+          ref="DiscountRef"
+          onTouchStart={this.clearAutoPlaySwiperTimer}
+          onTouchEnd={this.onSwiperTouchEnd}
+        >
           <View style={styles.slide1}>
             <Text style={styles.text}>Hello Swiper</Text>
           </View>
@@ -157,14 +223,35 @@ export default class Home extends React.Component {
           </View>
         </Swiper>
         <Text>折扣</Text>
+        {this.renderLoadMore('Discount')}
       </ScrollView>
     );
   }
   // H5
   renderTabH5 = () => {
+    const { refreshing } = this.state;
     return (
-      <ScrollView>
-        <Swiper style={styles.wrapper} >
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing.H5}
+            onRefresh={() => this.onRefresh('H5')}
+            tintColor="#ff0000"
+            title="加载中..."
+            titleColor="#00ff00"
+            colors={['#ff0000', '#00ff00', '#0000ff']}
+            progressBackgroundColor="#ffffff"
+          />
+        }
+        onScroll={(e) => this.onScroll(e, 'H5')}
+        scrollEventThrottle={50}
+      >
+        <Swiper
+          style={styles.wrapper}
+          ref="H5Ref"
+          onTouchStart={this.clearAutoPlaySwiperTimer}
+          onTouchEnd={this.onSwiperTouchEnd}
+        >
           <View style={styles.slide1}>
             <Text style={styles.text}>Hello Swiper</Text>
           </View>
@@ -176,6 +263,7 @@ export default class Home extends React.Component {
           </View>
         </Swiper>
         <Text>H5</Text>
+        {this.renderLoadMore('H5')}
       </ScrollView>
     );
   }
@@ -202,10 +290,32 @@ export default class Home extends React.Component {
     this.autoPlaySwiperTimer && clearInterval(this.autoPlaySwiperTimer);
   }
 }
-
+const spaceBgColor = '#EFEFEF';
 const styles = StyleSheet.create({
   home: {
     flex: 1,
+  },
+  hotCate: {
+    borderBottomWidth: 1,
+    borderBottomColor: spaceBgColor,
+    paddingVertical: 8,
+    marginBottom: 10,
+    marginHorizontal: 10
+  },
+  hotRecommend: {
+    width: 80,
+    textAlign: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FFA032',
+    color: '#FFA032',
+    fontSize: 15,
+    paddingVertical:4,
+    paddingHorizontal:8,
+  },
+  graySpace: {
+    height: 5,
+    backgroundColor: spaceBgColor
   },
   wrapper: {
     height: 200,
@@ -232,7 +342,7 @@ const styles = StyleSheet.create({
   gameListItem: {
     marginHorizontal: 10,
     paddingVertical: 5,
-    borderBottomWidth: 0.5,
-    borderColor: '#ccc'
+    borderBottomWidth: 1,
+    borderColor: spaceBgColor
   }
 })
